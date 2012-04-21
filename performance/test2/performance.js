@@ -6,7 +6,7 @@ pulse.ready(function() {
   
   var bg = new pulse.Layer({name: 'bg', x : 320, y : 240});
   var bgs = new pulse.Sprite({
-    src: '../../img/gray_bg.jpg', 
+    src: 'gray_bg.jpg', 
     name: 'bg'
   });
   bgs.position = {x: 320, y: 240};
