@@ -1,4 +1,4 @@
-#Pulse Demos?
+#Overview
 This collection of demonstrations is meant to show-off the various features of Pulse and what it is currently capable of doing. For more information of Pulse itself, please visit the [Pulse website][1], or the public github repository. 
 
 #Examples
