@@ -1,5 +1,5 @@
 #Overview
-This collection of demonstrations is meant to show-off the various features of Pulse and what it is currently capable of doing. For more information of Pulse itself, please visit the [Pulse website][1], or the public github repository. 
+This collection of demonstrations is meant to show-off the various features of Pulse and what it is currently capable of doing. For more information on Pulse itself, please visit the [Pulse website][1], or the public github repository. 
 
 #Examples
 Examples demonstrate specific functionality in Pulse, like the drag/drop event stack or loading assets using the asset manager. You can access examples using *index.html* inside the *examples* folder and adding the query string *?demo=[demo-path]*. For example, to access the drapdrop example you would use *examples/index.html?demo=event/dragdrop*.
