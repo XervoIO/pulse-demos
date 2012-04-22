@@ -1,0 +1,3 @@
+[submodule "lib/pulse"]
+	path = lib/pulse
+	url = git@github.com:onmodulus/pulse.git
