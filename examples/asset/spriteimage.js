@@ -1,5 +1,5 @@
 pulse.ready(function() {
-  var tileImg = new pulse.Texture({filename:'games/isometric/tile.png'});
+  var tileImg = new pulse.Texture({filename:'../games/isometric/tile.png'});
   
   var world = new pulse.Layer({name: 'myLayer', x : 320, y : 240});
   world.zindex = 2;

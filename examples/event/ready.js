@@ -11,7 +11,7 @@ function LoadPulse() {
   delete pulse;
   
   $.ajax({
-    url: '../build/bin/pulse.js',
+    url: '../lib/pulse/build/bin/pulse.js',
     dataType: 'script',
     success: function() { 
       WriteLine('Pulse Loaded!');
