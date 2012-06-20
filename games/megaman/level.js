@@ -12,23 +12,16 @@ mm.Brick = pulse.Sprite.extend({
    */
   init: function(texture, layer) {
     this.layer = layer;
-    this._super( { src: texture });
-    this.anchor = { x: 0, y: 0 };
-    this.size = { width: mm.Brick.Size.width, height: mm.Brick.Size.height };
-  },
-  /**
-   * Creates the Box2D body for this brick
-   * @return {[type]}
-   */
-  createBody: function() {
-    this.body = mm.createBody(
-      { x: this.position.x,
-        y: this.position.y,
-        size: {
-          width: mm.Brick.Size.width,
-          height: mm.Brick.Size.height }
-        },
-        this.layer.world);
+    this._super({
+      src: texture,
+      physics: {
+        isStatic: true
+      }
+    });
+    this.size = {
+      width: mm.Brick.Size.width,
+      height: mm.Brick.Size.height
+    };
   }
 });
 
@@ -55,9 +48,6 @@ mm.Level = pulse.Layer.extend({
    * @config {b2World} world Box2D world
    */
   init: function(params) {
-    
-    this.world = params.world;
-    
     this._super(params);
     
     for(var idx in mm.Level.Layout) {
@@ -96,24 +86,19 @@ mm.Platform = function(params, layer) {
     
     // create a brick and set its position
     var brick = new mm.Brick(texture, layer);
-    brick.position.x = (mm.Brick.Size.width - 1) * params.x + i * (mm.Brick.Size.width - 1);
-    brick.position.y = layer.size.height - (mm.Brick.Size.height * params.y) - mm.Brick.Size.height;
+    brick._physics.fixDef.restitution = 0;
+
+    brick.position.x =
+      (mm.Brick.Size.width - 1) * params.x + i *
+      (mm.Brick.Size.width - 1);
+
+    brick.position.y = layer.size.height -
+      ((mm.Brick.Size.height) * params.y) -
+      (mm.Brick.Size.height / 2);
 
     // add the brick to the layer
     layer.addNode(brick);
   }
-  
-  /**
-   * Calculate the width, height, x, and y position of the Box2D body that
-   * needs to be created
-   */
-  var width = (mm.Brick.Size.width - 1) * params.size.width;
-  var height = (mm.Brick.Size.height - 1);
-  var xPos = (mm.Brick.Size.width - 1) * params.x + width / 2;
-  var yPos = layer.size.height - (mm.Brick.Size.height * params.y) - mm.Brick.Size.height + height / 2;
-
-  // Create a single body to represent the platform
-  mm.createBody({ x: xPos, y: yPos, size: {width: width, height: height}}, layer.world);
 };
 
 /**
@@ -147,54 +132,21 @@ mm.Chunk = function(params, layer) {
 
       // Create new brick and set its position
       var brick = new mm.Brick(texture, layer);
+      brick._physics.fixDef.restitution = 0;
+      
       brick.position.y =
         layer.size.height -
-        colIdx * (mm.Brick.Size.height - 1) -
-        mm.Brick.Size.height;
-      brick.position.x = (mm.Brick.Size.width - 1) * (params.x + rowIdx);
+        colIdx * ((mm.Brick.Size.height / 2)  - 1) -
+        (mm.Brick.Size.height / 2);
+
+      brick.position.x =
+        (mm.Brick.Size.width - 1) *
+        (params.x + rowIdx);
 
       // Add the brick to the layer
       layer.addNode(brick);
     }
   }
-  
-  /**
-   * Calculate the width, height, x, and y position of the Box2D body that
-   * needs to be created
-   */
-  var width = (mm.Brick.Size.width - 1) * params.size.width;
-  var height = (mm.Brick.Size.height - 1) * params.size.height;
-  var xPos = (mm.Brick.Size.width - 1) * params.x + width / 2;
-  var yPos = layer.size.height - ((params.size.height) * (mm.Brick.Size.height - 1)) + height / 2;
-  
-  // Create a single body to represent the chunk
-  mm.createBody({ x: xPos, y: yPos, size: {width: width, height: height}}, layer.world);
-};
-
-/**
- * Helper static function for creating Box2D body
- * @config {number} width The width of the body to create
- * @config {number} height The height of the body to create
- * @config {number} x The x position of the body
- * @config {number} y the y position of the body
- * @param  {b2World} world The Box2D world to add the body to
- * @return {b2Body}
- */
-mm.createBody = function(params, world) {
-  // Box2D body definition and shape definition creation
-  var bodyDef = new b2BodyDef();
-  bodyDef.position.Set(params.x * mm.Box2DFactor, params.y * mm.Box2DFactor);
-  var body = world.CreateBody(bodyDef);
-  var shapeDef = new b2PolygonDef();
-  shapeDef.restitution = 0.0;
-  shapeDef.friction = 0.0;
-  shapeDef.density = 2.0;
-  shapeDef.SetAsBox(
-    (params.size.width * mm.Box2DFactor) / 2,
-    (params.size.height * mm.Box2DFactor) / 2);
-  body.CreateShape(shapeDef);
-
-  return body;
 };
 
 /**

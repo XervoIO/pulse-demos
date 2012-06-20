@@ -14,14 +14,8 @@ mm.Megaman = pulse.Sprite.extend({
       params = {};
     }
     params.src = mm.Megaman.texture;
-    
-    this._super(params);
 
-    // Initialize the anchor to bottom center
-    this.anchor = {
-      x : 0.5,
-      y : 1.0
-    };
+    this._super(params);
 
     this.size = {
       width : 55,
@@ -115,32 +109,6 @@ mm.Megaman = pulse.Sprite.extend({
 
     // Add the animation
     this.addAction(smileAction);
-
-    // setup physics body
-    this._private.b2world = params.b2world;
-
-    var bodyDef = new b2BodyDef();
-    var bw = Math.floor(0.636363636 * this.size.width) * mm.Box2DFactor;
-    var bh = Math.floor(0.716666667 * this.size.height) * mm.Box2DFactor;
-    bodyDef.position.Set(
-      this.position.x * mm.Box2DFactor,
-      this.position.y * mm.Box2DFactor + bw / 2
-    );
-    bodyDef.massData.mass = 2.0;
-    bodyDef.massData.center.SetZero();
-    bodyDef.massData.I = Number.POSITIVE_INFINITY;
-
-    this.b2body = this._private.b2world.CreateBody(bodyDef);
-    this.b2body.w = bw;
-    this.b2body.h = bh;
-    
-    var shapeDef = new b2PolygonDef();
-    shapeDef.SetAsBox(bw / 2, bh / 2);
-    shapeDef.restitution = 0.0;
-    shapeDef.density = 2.0;
-    shapeDef.friction = 0.0;
-
-    this.b2body.CreateShape(shapeDef);
   },
 
   /**
@@ -159,22 +127,18 @@ mm.Megaman = pulse.Sprite.extend({
    */
   update : function(elapsed) {
 
-    // Set position based on the Box2D body position
-    this.position = {
-      x : Math.round(this.b2body.GetPosition().x / mm.Box2DFactor),
-      y : Math.round((this.b2body.GetPosition().y + this.b2body.h / 2) / mm.Box2DFactor) + 1
-    };
-
     // If the man is jumping make sure the correct state is set
-    if(this.b2body.GetLinearVelocity().y > 0.01 ||
-       this.b2body.GetLinearVelocity().y < -0.01) {
+    if(this._physics.body.GetLinearVelocity().y > 0.01 ||
+       this._physics.body.GetLinearVelocity().y < -0.01) {
       if(this.state != mm.Megaman.State.Intro) {
         this.state = mm.Megaman.State.Jumping;
       }
     } else {
       // Jump complete or wasn't jumping, check if was jumping and update
       // state accordingly
-      this.b2body.SetLinearVelocity(new b2Vec2(this.b2body.GetLinearVelocity().x, 0));
+      this._physics.body.SetLinearVelocity(
+        new b2Vec2(this._physics.body.GetLinearVelocity().x, 0)
+      );
       if(this.state == mm.Megaman.State.Jumping) {
         this.state = mm.Megaman.State.Idle;
       }

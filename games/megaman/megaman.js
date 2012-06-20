@@ -6,39 +6,37 @@ var mm = mm || { };
  * the game.
  */
 pulse.ready(function() {
-  // Ratio of Box2D physics to pulse
-  mm.Box2DFactor = 0.01;
-
-  /**
-   * Create Box2D bounding box to learn more about Box2D Javascript
-   * check out https://github.com/thinkpixellab/pl
-   */
-  var worldAABB = new b2AABB();
-  worldAABB.lowerBound.Set(-10000.0, -10000.0);
-  worldAABB.upperBound.Set(10000.0, 10000.0);
-
-  // Setup gravity vector and world for Box2D
-  var gravity = new b2Vec2(0.0, 7);
-  var world = new b2World(worldAABB, gravity, true);
+  pulse.physics.friction = 0.0;
+  pulse.physics.GRAVITY = new Box2D.Common.Math.b2Vec2(0, 7);
 
   // The base engine object for this demo with passed in id of game div
-  var engine = new pulse.Engine({ 
-    gameWindow: 'gameWindow', size: {width: 600, height: 400}});
+  var engine = new pulse.Engine({
+    gameWindow: 'gameWindow', size: {width: 600, height: 400}
+  });
 
   // The main scene for the demo
   var scene = new pulse.Scene();
 
   // Parallax background layers
-  var bg1 = new pulse.Layer({size: { width: 6000, height: 300 }});
+  var bg1 = new pulse.Layer({
+    size: { width: 6000, height: 300 },
+    physics : { isEnabled: false }
+  });
   bg1.anchor = { x: 0, y: 0 };
   bg1.position.y = 250;
 
-  var bg2 = new pulse.Layer({size: { width: 6000, height: 600 }});
+  var bg2 = new pulse.Layer({
+    size: { width: 6000, height: 600 },
+    physics : { isEnabled: false }
+  });
   bg2.anchor = { x: 0, y: 0 };
   bg2.position.y = -200;
 
   // Level layer object extends from layer see layer.js
-  var level = new mm.Level({size: {width: 6000, height: 800}, world: world });
+  var level = new mm.Level({
+    size: {width: 6000, height: 800},
+    physics : { isEnabled: false }
+  });
   level.anchor = { x: 0, y: 0 };
   level.position.y = -400;
 
@@ -46,12 +44,18 @@ pulse.ready(function() {
    * The mm layer, he's on a seperate layer so we don't redraw everything
    * when he moves
    */
-  var manLayer = new pulse.Layer({size: {width: 6000, height: 800}});
+  var manLayer = new pulse.Layer({
+    size: {width: 6000, height: 800},
+    physics : { isEnabled: false }
+  });
   manLayer.anchor = { x: 0, y: 0 };
   manLayer.position.y = -400;
 
   // Layer for the UI, text
-  var uiLayer = new pulse.Layer({size: {width : 600, height: 400}});
+  var uiLayer = new pulse.Layer({
+    size: {width : 600, height: 400},
+    physics : { isEnabled: false }
+  });
   uiLayer.position = {x: 300, y: 200};
 
   // Texture for the mountain and for the clouds
@@ -60,13 +64,19 @@ pulse.ready(function() {
 
   // Add 10 sprites to the background for multiple mountains and clouds
   for(var i = 0; i < 10; i++) {
-    var bgTile = new pulse.Sprite( { src: bg1Texture } );
+    var bgTile = new pulse.Sprite({
+      src: bg1Texture,
+      physics : { isEnabled: false }
+    });
     bgTile.anchor = { x: 0, y: 0 };
     bgTile.position.x = 700 * i - 1;
     
     bg1.addNode(bgTile);
     
-    bgTile = new pulse.Sprite( { src: bg2Texture } );
+    bgTile = new pulse.Sprite({
+      src: bg2Texture,
+      physics : { isEnabled: false }
+    });
     bgTile.anchor = { x: 0, y: 0 };
     bgTile.position.x = 600 * i;
     
@@ -75,21 +85,12 @@ pulse.ready(function() {
 
   // The man, along with initalized position
   var man = new mm.Megaman({
-    b2world : world,
-    position : {
-      x : 75,
-      y : 550
-    }
+    position : {x : 75,y : 550},
+    physics: {basicShape: 'box'}
   });
+  man._physics.bodyDef.fixedRotation = true;
+  man._physics.fixDef.restitution = 0;
   manLayer.addNode(man);
-
-
-  // Setup UI
-  //var font = new pulse.BitmapFont({filename:'eboots.fnt'});
-  //var l = new pulse.BitmapLabel({font: font, text: 'Built With Pulse'});
-  //l.position = {x: 5, y: 5};
-  //l.anchor = {x: 0, y: 0};
-  //uiLayer.addNode(l);
 
   // Add the layers to our scene
   scene.addLayer(bg2);
@@ -137,7 +138,7 @@ pulse.ready(function() {
   function update(sceneManager, elapsed) {
     
     // update the Box2D physics world
-    world.Step(elapsed / 1000, 10);
+    //world.Step(elapsed / 1000, 10);
     
     /**
      * If the left arrow is down update the state of the man if needed
@@ -149,10 +150,12 @@ pulse.ready(function() {
       if(man.state != mm.Megaman.State.Jumping) {
         man.state = mm.Megaman.State.Running;
       }
+
       // Box2d wake up call
-      man.b2body.WakeUp();
+      man._physics.body.SetAwake(true);
+
       // Gives the man a linear velocity in the direction on the move
-      man.b2body.SetLinearVelocity(new b2Vec2(-2, man.b2body.GetLinearVelocity().y));
+      man._physics.body.SetLinearVelocity(new b2Vec2(-2, man._physics.body.GetLinearVelocity().y));
     }
     
     /**
@@ -165,10 +168,12 @@ pulse.ready(function() {
       if(man.state != mm.Megaman.State.Jumping) {
         man.state = mm.Megaman.State.Running;
       }
+
       // Box2d wake up call
-      man.b2body.WakeUp();
+      man._physics.body.SetAwake(true);
+
       // Gives the man a linear velocity in the direction on the move
-      man.b2body.SetLinearVelocity(new b2Vec2(2, man.b2body.GetLinearVelocity().y));
+      man._physics.body.SetLinearVelocity(new b2Vec2(2, man._physics.body.GetLinearVelocity().y));
     }
 
     // Update the camera based on the position of the man
@@ -177,10 +182,16 @@ pulse.ready(function() {
     // If the man has fallen to his dealth reset set him
     if(man.position.y > 2000) {
       // Box2d wake up call
-      man.b2body.WakeUp();
+      man._physics.body.SetAwake(true);
+
       // Set position and remove any linear velocity
-      man.b2body.SetXForm(new b2Vec2(50 * mm.Box2DFactor, 600 * mm.Box2DFactor), 0);
-      man.b2body.SetLinearVelocity(new b2Vec2(0, 0));
+      man._physics.body.SetTransform(
+        new b2Vec2(50, 600), 0
+      );
+
+      //man.position = {x : 50,y : 650};
+      man._physics.body.SetLinearVelocity(new b2Vec2(0, 0));
+
       // Set the man's state to beam him in
       man.state = mm.Megaman.State.Intro;
     }
@@ -225,7 +236,7 @@ pulse.ready(function() {
       if(man.state != mm.Megaman.State.Jumping) {
         man.state = mm.Megaman.State.Jumping;
         // Apply an impulse in Box2D
-        man.b2body.ApplyImpulse(new b2Vec2(0, -8), man.b2body.GetPosition());
+        man._physics.body.ApplyImpulse(new b2Vec2(0, -1.8), man._physics.body.GetPosition());
       }
     }
   });
@@ -235,11 +246,11 @@ pulse.ready(function() {
    */
   scene.events.bind('keyup', function(e) {
     if(e.keyCode == 37) {
-      man.b2body.SetLinearVelocity(new b2Vec2(0, man.b2body.GetLinearVelocity().y));
+      man._physics.body.SetLinearVelocity(new b2Vec2(0, man._physics.body.GetLinearVelocity().y));
       arrowLeft = false;
     }
     if(e.keyCode == 39) {
-      man.b2body.SetLinearVelocity(new b2Vec2(0, man.b2body.GetLinearVelocity().y));
+      man._physics.body.SetLinearVelocity(new b2Vec2(0, man._physics.body.GetLinearVelocity().y));
       arrowRight = false;
     }
     if(e.keyCode == 38) {
