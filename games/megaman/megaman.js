@@ -92,12 +92,29 @@ pulse.ready(function() {
   man._physics.fixDef.restitution = 0;
   manLayer.addNode(man);
 
+  var debugLayer = new pulse.Layer({
+    name: 'Debug_Layer',
+    size: { width: 6000, height: 800 }
+  });
+
+  debugLayer.anchor = { x: 0, y: 0 };
+  debugLayer.position = { x: 0, y: -400 };
+
   // Add the layers to our scene
   scene.addLayer(bg2);
   scene.addLayer(bg1);
   scene.addLayer(level);
   scene.addLayer(manLayer);
   scene.addLayer(uiLayer);
+  scene.addLayer(debugLayer);
+
+  var debugDraw = new Box2D.Dynamics.b2DebugDraw();
+  debugDraw.SetSprite(debugLayer.canvas.getContext('2d'));
+  debugDraw.SetDrawScale(100);
+  debugDraw.SetFillAlpha(0.3);
+  debugDraw.SetLineThickness(1.0);
+  debugDraw.SetFlags(Box2D.Dynamics.b2DebugDraw.e_shapeBit | Box2D.Dynamics.b2DebugDraw.e_jointBit);
+  pulse.physics.WORLD.SetDebugDraw(debugDraw);
 
   // Add the scene to the engine scene manager and activate it
   engine.scenes.addScene(scene);
@@ -128,6 +145,9 @@ pulse.ready(function() {
     manLayer.position.y -= dy;
     bg1.position.y -= dy / 2;
     bg2.position.y -= dy / 3;
+
+    debugLayer.position.x -= dx;
+    debugLayer.position.y -= dy;
   }
 
   /**
@@ -139,6 +159,8 @@ pulse.ready(function() {
     
     // update the Box2D physics world
     //world.Step(elapsed / 1000, 10);
+
+    pulse.physics.WORLD.DrawDebugData();
     
     /**
      * If the left arrow is down update the state of the man if needed
@@ -262,5 +284,5 @@ pulse.ready(function() {
   });
 
   // Start the game engine and tell it run at 50fps if possible
-  engine.go(20, update);
+  engine.go(30, update);
 });
