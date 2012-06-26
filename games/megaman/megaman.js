@@ -7,7 +7,8 @@ var mm = mm || { };
  */
 pulse.ready(function() {
   pulse.physics.friction = 0.0;
-  pulse.physics.GRAVITY = new Box2D.Common.Math.b2Vec2(0, 7);
+  pulse.physics.restitution = 0.0;
+  pulse.physics.WORLD.SetGravity(new Box2D.Common.Math.b2Vec2(0, 7));
 
   // The base engine object for this demo with passed in id of game div
   var engine = new pulse.Engine({
@@ -86,10 +87,8 @@ pulse.ready(function() {
   // The man, along with initalized position
   var man = new mm.Megaman({
     position : {x : 75,y : 550},
-    physics: {basicShape: 'box'}
   });
-  man._physics.bodyDef.fixedRotation = true;
-  man._physics.fixDef.restitution = 0;
+
   manLayer.addNode(man);
 
   var debugLayer = new pulse.Layer({
@@ -114,7 +113,9 @@ pulse.ready(function() {
   debugDraw.SetFillAlpha(0.3);
   debugDraw.SetLineThickness(1.0);
   debugDraw.SetFlags(Box2D.Dynamics.b2DebugDraw.e_shapeBit | Box2D.Dynamics.b2DebugDraw.e_jointBit);
-  pulse.physics.WORLD.SetDebugDraw(debugDraw);
+  
+  // Uncomment to enable physics debug drawing. (1 of 2)
+  //pulse.physics.WORLD.SetDebugDraw(debugDraw);
 
   // Add the scene to the engine scene manager and activate it
   engine.scenes.addScene(scene);
@@ -131,6 +132,7 @@ pulse.ready(function() {
    * Updates the camera and parallax backgrounds based on position of man
    */
   function updateCamera() {
+
     var nx = 300 - Math.max(man.position.x, 300);
     var dx = level.position.x - nx;
     var ny = 200 - Math.min(man.position.y, 600);
@@ -160,7 +162,8 @@ pulse.ready(function() {
     // update the Box2D physics world
     //world.Step(elapsed / 1000, 10);
 
-    pulse.physics.WORLD.DrawDebugData();
+    // Uncomment to enable physics debug drawing. (2 of 2)
+    //pulse.physics.WORLD.DrawDebugData();
     
     /**
      * If the left arrow is down update the state of the man if needed
@@ -177,7 +180,7 @@ pulse.ready(function() {
       man._physics.body.SetAwake(true);
 
       // Gives the man a linear velocity in the direction on the move
-      man._physics.body.SetLinearVelocity(new b2Vec2(-2, man._physics.body.GetLinearVelocity().y));
+      man._physics.body.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(-2, man._physics.body.GetLinearVelocity().y));
     }
     
     /**
@@ -195,7 +198,7 @@ pulse.ready(function() {
       man._physics.body.SetAwake(true);
 
       // Gives the man a linear velocity in the direction on the move
-      man._physics.body.SetLinearVelocity(new b2Vec2(2, man._physics.body.GetLinearVelocity().y));
+      man._physics.body.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(2, man._physics.body.GetLinearVelocity().y));
     }
 
     // Update the camera based on the position of the man
@@ -207,12 +210,12 @@ pulse.ready(function() {
       man._physics.body.SetAwake(true);
 
       // Set position and remove any linear velocity
-      man._physics.body.SetTransform(
-        new b2Vec2(50, 600), 0
+      man._physics.body.SetPositionAndAngle(
+        new Box2D.Common.Math.b2Vec2(50 * pulse.physics.FACTOR, 600 * pulse.physics.FACTOR), 0.0
       );
 
       //man.position = {x : 50,y : 650};
-      man._physics.body.SetLinearVelocity(new b2Vec2(0, 0));
+      man._physics.body.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0, 0));
 
       // Set the man's state to beam him in
       man.state = mm.Megaman.State.Intro;
@@ -258,7 +261,7 @@ pulse.ready(function() {
       if(man.state != mm.Megaman.State.Jumping) {
         man.state = mm.Megaman.State.Jumping;
         // Apply an impulse in Box2D
-        man._physics.body.ApplyImpulse(new b2Vec2(0, -1.8), man._physics.body.GetPosition());
+        man._physics.body.ApplyImpulse(new Box2D.Common.Math.b2Vec2(0, -0.8), man._physics.body.GetPosition());
       }
     }
   });
@@ -268,11 +271,11 @@ pulse.ready(function() {
    */
   scene.events.bind('keyup', function(e) {
     if(e.keyCode == 37) {
-      man._physics.body.SetLinearVelocity(new b2Vec2(0, man._physics.body.GetLinearVelocity().y));
+      man._physics.body.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0, man._physics.body.GetLinearVelocity().y));
       arrowLeft = false;
     }
     if(e.keyCode == 39) {
-      man._physics.body.SetLinearVelocity(new b2Vec2(0, man._physics.body.GetLinearVelocity().y));
+      man._physics.body.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(0, man._physics.body.GetLinearVelocity().y));
       arrowRight = false;
     }
     if(e.keyCode == 38) {

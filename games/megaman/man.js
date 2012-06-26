@@ -13,6 +13,13 @@ mm.Megaman = pulse.Sprite.extend({
     if(!params) {
       params = {};
     }
+
+    // Specify a position offset - we want megaman to
+    // overload the ground a little.
+    params.physics = { 
+      positionOffset  : { x: 0, y: -5 }
+    };
+
     params.src = mm.Megaman.texture;
 
     this._super(params);
@@ -21,6 +28,16 @@ mm.Megaman = pulse.Sprite.extend({
       width : 55,
       height : 60
     };
+
+    // Override some physical properties.
+    this._physics.bodyDef.fixedRotation = true;
+    this._physics.bodyDef.allowSleep = true;
+    this._physics.fixDef.restitution = 0;
+
+    this._physics.fixDef.shape = new Box2D.Collision.Shapes.b2PolygonShape();
+    this._physics.fixDef.shape.SetAsBox(
+      (this.size.width - 15) / 2 * pulse.physics.FACTOR,
+      (this.size.height - 15) / 2 * pulse.physics.FACTOR);
 
     this.position = {
       x : params.position.x || 0,
@@ -137,7 +154,7 @@ mm.Megaman = pulse.Sprite.extend({
       // Jump complete or wasn't jumping, check if was jumping and update
       // state accordingly
       this._physics.body.SetLinearVelocity(
-        new b2Vec2(this._physics.body.GetLinearVelocity().x, 0)
+        new Box2D.Common.Math.b2Vec2(this._physics.body.GetLinearVelocity().x, 0)
       );
       if(this.state == mm.Megaman.State.Jumping) {
         this.state = mm.Megaman.State.Idle;

@@ -15,7 +15,7 @@ mm.Brick = pulse.Sprite.extend({
     this._super({
       src: texture,
       physics: {
-        isStatic: true
+        isEnabled: false
       }
     });
     this.size = {
@@ -72,6 +72,10 @@ mm.Level = pulse.Layer.extend({
  * @param {pulse.Layer} layer The layer to add the platform to
  */
 mm.Platform = function(params, layer) {
+
+  var startPos;
+  var endPos;
+
   // loop through the width of the platform
   for(var i = 0; i < params.size.width; i++) {
 
@@ -86,7 +90,6 @@ mm.Platform = function(params, layer) {
     
     // create a brick and set its position
     var brick = new mm.Brick(texture, layer);
-    brick._physics.fixDef.restitution = 0;
 
     brick.position.x =
       (mm.Brick.Size.width - 1) * params.x + i *
@@ -96,9 +99,33 @@ mm.Platform = function(params, layer) {
       ((mm.Brick.Size.height) * params.y) -
       (mm.Brick.Size.height / 2);
 
+    if(i === 0)
+      startPos = brick.position;
+
+    endPos = brick.position;
+
     // add the brick to the layer
     layer.addNode(brick);
   }
+
+  // Create a dummy sprite for physics.
+  var physicsSprite = new pulse.Sprite({
+    src: 'blank.png',
+    physics: {
+      isStatic: true
+    },
+    size: { 
+      width: (endPos.x - startPos.x) + mm.Brick.Size.width,
+      height: mm.Brick.Size.height
+    }
+  });
+
+  physicsSprite.position = {
+    x: (startPos.x) + ((endPos.x - startPos.x) / 2),
+    y: startPos.y
+  };
+
+  layer.addNode(physicsSprite);
 };
 
 /**
@@ -136,17 +163,36 @@ mm.Chunk = function(params, layer) {
       
       brick.position.y =
         layer.size.height -
-        colIdx * ((mm.Brick.Size.height / 2)  - 1) -
-        (mm.Brick.Size.height / 2);
+        colIdx * mm.Brick.Size.height + colIdx;
 
       brick.position.x =
         (mm.Brick.Size.width - 1) *
         (params.x + rowIdx);
 
+
       // Add the brick to the layer
       layer.addNode(brick);
     }
   }
+
+  // Create a dummy sprite for physics.
+  var physicsSprite = new pulse.Sprite({
+    src: 'blank.png',
+    physics: {
+      isStatic: true
+    },
+    size: { 
+      width: params.size.width * mm.Brick.Size.width - params.size.width,
+      height: params.size.height * mm.Brick.Size.height - params.size.height
+    }
+  });
+
+  physicsSprite.position = {
+    x: params.x * mm.Brick.Size.width - params.x + (physicsSprite.size.width / 2) - mm.Brick.Size.width / 2,
+    y: layer.size.height - physicsSprite.size.height / 2 + mm.Brick.Size.height / 2
+  };
+
+  layer.addNode(physicsSprite);
 };
 
 /**
