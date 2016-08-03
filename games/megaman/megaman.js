@@ -71,16 +71,16 @@ pulse.ready(function() {
     });
     bgTile.anchor = { x: 0, y: 0 };
     bgTile.position.x = 700 * i - 1;
-    
+
     bg1.addNode(bgTile);
-    
+
     bgTile = new pulse.Sprite({
       src: bg2Texture,
       physics : { isEnabled: false }
     });
     bgTile.anchor = { x: 0, y: 0 };
     bgTile.position.x = 600 * i;
-    
+
     bg2.addNode(bgTile);
   }
 
@@ -104,8 +104,9 @@ pulse.ready(function() {
   scene.addLayer(bg1);
   scene.addLayer(level);
   scene.addLayer(manLayer);
-  scene.addLayer(uiLayer);
   scene.addLayer(debugLayer);
+  // we don't utilize `uiLayer` in this demo but you can :)
+  scene.addLayer(uiLayer);
 
   var debugDraw = new Box2D.Dynamics.b2DebugDraw();
   debugDraw.SetSprite(debugLayer.canvas.getContext('2d'));
@@ -113,7 +114,7 @@ pulse.ready(function() {
   debugDraw.SetFillAlpha(0.3);
   debugDraw.SetLineThickness(1.0);
   debugDraw.SetFlags(Box2D.Dynamics.b2DebugDraw.e_shapeBit | Box2D.Dynamics.b2DebugDraw.e_jointBit);
-  
+
   // Uncomment to enable physics debug drawing. (1 of 2)
   //pulse.physics.WORLD.SetDebugDraw(debugDraw);
 
@@ -158,13 +159,13 @@ pulse.ready(function() {
    * @param  {Number} elapsed the time since last update loop
    */
   function update(sceneManager, elapsed) {
-    
+
     // update the Box2D physics world
     //world.Step(elapsed / 1000, 10);
 
     // Uncomment to enable physics debug drawing. (2 of 2)
     //pulse.physics.WORLD.DrawDebugData();
-    
+
     /**
      * If the left arrow is down update the state of the man if needed
      */
@@ -182,7 +183,7 @@ pulse.ready(function() {
       // Gives the man a linear velocity in the direction on the move
       man._physics.body.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(-2, man._physics.body.GetLinearVelocity().y));
     }
-    
+
     /**
      * If the right arrow is down update the state of the man if needed
      */
